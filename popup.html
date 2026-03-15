@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReviewLens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c10;
+    --bg2: #0d1117;
+    --surface: #111820;
+    --surface2: #161e28;
+    --surface3: #1a2332;
+    --border: #1e2d3d;
+    --border2: #243447;
+    --text: #e2eaf3;
+    --text2: #8b9bb4;
+    --text3: #4a5568;
+    --green: #00d97e;
+    --green-dim: rgba(0,217,126,0.12);
+    --green-glow: rgba(0,217,126,0.2);
+    --red: #ff4d6a;
+    --red-dim: rgba(255,77,106,0.1);
+    --blue: #4da6ff;
+    --blue-dim: rgba(77,166,255,0.1);
+    --amber: #ffaa2c;
+    --mono: 'JetBrains Mono', 'Fira Code', monospace;
+    --sans: 'Syne', system-ui, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    width: 400px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.5;
+    overflow: hidden;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px 12px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #0d1520 0%, var(--bg2) 100%);
+    position: relative;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--green-glow), transparent);
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .logo-mark {
+    width: 26px; height: 26px;
+    background: linear-gradient(135deg, var(--green) 0%, #00b868 100%);
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 700;
+    color: #040810;
+    box-shadow: 0 0 12px var(--green-glow);
+  }
+  .logo-name {
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .mode-pill {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 10px;
+    color: var(--text2);
+    letter-spacing: 0.04em;
+  }
+  .mode-pill-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+  .btn-icon {
+    width: 26px; height: 26px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    transition: all 0.15s;
+  }
+  .btn-icon:hover { border-color: var(--border2); color: var(--text); background: var(--surface2); }
+
+  /* ── STATES ── */
+  .state { display: none; animation: fadeIn 0.2s ease; }
+  .state.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  /* ── ONBOARDING ── */
+  .onboard {
+    padding: 24px 20px 20px;
+  }
+  .onboard-hero {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .onboard-icon {
+    width: 52px; height: 52px;
+    background: linear-gradient(135deg, var(--green-dim), rgba(0,217,126,0.05));
+    border: 1px solid rgba(0,217,126,0.2);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin: 0 auto 14px;
+  }
+  .onboard-hero h2 {
+    font-family: var(--sans);
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  .onboard-hero p {
+    font-size: 11px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+  .onboard-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .onboard-step {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    transition: border-color 0.2s;
+  }
+  .onboard-step:hover { border-color: var(--border2); }
+  .step-n {
+    width: 18px; height: 18px;
+    background: var(--green);
+    color: #040810;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .step-n.done { background: var(--surface3); color: var(--green); border: 1px solid var(--green); }
+  .step-text strong { display: block; font-size: 11px; color: var(--text); margin-bottom: 3px; }
+  .step-text span { font-size: 11px; color: var(--text2); }
+  .step-text a { color: var(--blue); text-decoration: none; }
+  .key-input-wrap {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .key-input {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 7px 10px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .key-input:focus { border-color: var(--green); box-shadow: 0 0 0 3px var(--green-dim); }
+  .key-input::placeholder { color: var(--text3); }
+  .key-input.error { border-color: var(--red); box-shadow: 0 0 0 3px var(--red-dim); }
+
+  /* ── BUTTONS ── */
+  .btn-main {
+    width: 100%;
+    background: var(--green);
+    color: #040810;
+    border: none;
+    border-radius: 8px;
+    padding: 11px;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    letter-spacing: 0.02em;
+    box-shadow: 0 0 20px var(--green-dim);
+  }
+  .btn-main:hover { background: #00f090; box-shadow: 0 0 28px var(--green-glow); transform: translateY(-1px); }
+  .btn-main:active { transform: translateY(0); }
+  .btn-main:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-secondary {
+    flex: 1;
+    background: var(--surface);
+    color: var(--text2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+  .btn-secondary:hover { border-color: var(--border2); color: var(--text); background: var(--surface2); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 8px 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+
+  /* ── NOT PR ── */
+  .not-pr {
+    padding: 36px 20px;
+    text-align: center;
+  }
+  .not-pr-icon {
+    width: 48px; height: 48px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin: 0 auto 14px;
+  }
+  .not-pr h3 {
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .not-pr p { font-size: 11px; color: var(--text2); line-height: 1.6; }
+
+  /* ── READY ── */
+  .ready-body { padding: 14px 16px 16px; }
+  .pr-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .pr-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, var(--green), transparent);
+  }
+  .pr-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-left: 4px;
+  }
+
+  /* MODE TOGGLE */
+  .mode-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .mode-opt {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .mode-opt:hover { border-color: var(--border2); }
+  .mode-opt.active {
+    border-color: var(--green);
+    background: var(--green-dim);
+  }
+  .mode-opt-icon { font-size: 16px; display: block; margin-bottom: 3px; }
+  .mode-opt-name {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    display: block;
+  }
+  .mode-opt.active .mode-opt-name { color: var(--green); }
+  .mode-opt-sub { font-size: 10px; color: var(--text2); }
+  .mode-opt.active .mode-opt-sub { color: rgba(0,217,126,0.6); }
+
+  .ollama-notice {
+    background: var(--blue-dim);
+    border: 1px solid rgba(77,166,255,0.15);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 11px;
+    color: var(--text2);
+    margin-bottom: 12px;
+    display: none;
+    line-height: 1.6;
+  }
+  .ollama-notice.show { display: block; }
+  .ollama-notice code {
+    color: var(--blue);
+    background: rgba(77,166,255,0.08);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* ── LOADING ── */
+  .loading-body {
+    padding: 36px 20px;
+    text-align: center;
+  }
+  .loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin-bottom: 16px;
+  }
+  .loader-bar {
+    width: 3px;
+    height: 24px;
+    background: var(--green);
+    border-radius: 2px;
+    animation: loaderAnim 1s ease-in-out infinite;
+  }
+  .loader-bar:nth-child(1) { animation-delay: 0s; }
+  .loader-bar:nth-child(2) { animation-delay: 0.15s; height: 32px; }
+  .loader-bar:nth-child(3) { animation-delay: 0.3s; }
+  .loader-bar:nth-child(4) { animation-delay: 0.15s; height: 28px; }
+  .loader-bar:nth-child(5) { animation-delay: 0s; }
+  @keyframes loaderAnim {
+    0%, 100% { opacity: 0.2; transform: scaleY(0.6); }
+    50% { opacity: 1; transform: scaleY(1); }
+  }
+  .loading-title {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 5px;
+  }
+  .loading-step { font-size: 11px; color: var(--text2); }
+
+  /* ── RESULTS ── */
+  .results-body { padding: 12px 14px 14px; }
+  .result-section {
+    margin-bottom: 8px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .result-section:hover { border-color: var(--border2); }
+  .section-head {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 12px;
+    background: var(--surface);
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text2);
+    border-bottom: 1px solid var(--border);
+  }
+  .sh-dot { width: 5px; height: 5px; border-radius: 50%; }
+  .sh-dot.g { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .sh-dot.r { background: var(--red); box-shadow: 0 0 6px var(--red); }
+  .sh-dot.b { background: var(--blue); box-shadow: 0 0 6px var(--blue); }
+  .section-body { padding: 10px 12px; background: var(--bg2); }
+
+  .s-bullet {
+    display: flex;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--text2);
+    line-height: 1.6;
+    margin-bottom: 5px;
+  }
+  .s-bullet:last-child { margin-bottom: 0; }
+  .s-bullet::before { content: '›'; color: var(--green); flex-shrink: 0; font-size: 14px; line-height: 1.3; }
+
+  .risk-card {
+    background: rgba(255,77,106,0.06);
+    border: 1px solid rgba(255,77,106,0.15);
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin-bottom: 6px;
+  }
+  .risk-card:last-child { margin-bottom: 0; }
+  .risk-card-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--red);
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .risk-card-body { font-size: 11px; color: var(--text2); line-height: 1.5; }
+
+  .q-card {
+    background: rgba(77,166,255,0.06);
+    border: 1px solid rgba(77,166,255,0.12);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 11px;
+    color: var(--blue);
+    line-height: 1.6;
+    margin-bottom: 6px;
+    display: flex;
+    gap: 7px;
+    align-items: flex-start;
+  }
+  .q-card:last-child { margin-bottom: 0; }
+  .q-label { font-size: 9px; font-weight: 700; color: rgba(77,166,255,0.5); flex-shrink: 0; margin-top: 2px; letter-spacing: 0.05em; }
+
+  .no-risk {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    color: var(--green);
+  }
+  .no-risk::before { content: '✓'; font-weight: 700; }
+
+  .result-actions {
+    display: flex;
+    gap: 7px;
+    margin-top: 10px;
+  }
+
+  /* ── ERROR ── */
+  .error-body { padding: 16px; }
+  .error-card {
+    background: var(--red-dim);
+    border: 1px solid rgba(255,77,106,0.2);
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .error-card h3 { font-family: var(--sans); font-size: 13px; color: var(--red); margin-bottom: 6px; }
+  .error-card p { font-size: 11px; color: var(--text2); line-height: 1.6; }
+  .error-card code { display: block; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 7px 10px; margin-top: 8px; font-size: 11px; color: var(--green); line-height: 1.7; }
+
+  /* ── SETTINGS ── */
+  .settings-body { padding: 16px; }
+  .settings-title {
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+  .field { margin-bottom: 14px; }
+  .field-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text2); margin-bottom: 6px; }
+  .field-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .field-input:focus { border-color: var(--green); box-shadow: 0 0 0 3px var(--green-dim); }
+  .field-hint { font-size: 10px; color: var(--text3); margin-top: 5px; line-height: 1.5; }
+  .field-hint a { color: var(--blue); text-decoration: none; }
+  .settings-actions { display: flex; gap: 8px; margin-top: 16px; }
+
+  /* ── FOOTER ── */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 8px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg2);
+  }
+  .footer-left { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--text3); }
+  .footer-lock { color: var(--green); font-size: 11px; }
+  .footer a { font-size: 10px; color: var(--text3); text-decoration: none; transition: color 0.15s; }
+  .footer a:hover { color: var(--blue); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">
+    <div class="logo-mark">R</div>
+    <span class="logo-name">ReviewLens</span>
+  </div>
+  <div class="header-right">
+    <div class="mode-pill">
+      <div class="mode-pill-dot"></div>
+      <span id="modeBadge">groq</span>
+    </div>
+    <button class="btn-icon" id="btnSettings" title="Settings">⚙</button>
+  </div>
+</div>
+
+<!-- ONBOARDING -->
+<div class="state active" id="stateOnboard">
+  <div class="onboard">
+    <div class="onboard-hero">
+      <div class="onboard-icon">👋</div>
+      <h2>Welcome to ReviewLens</h2>
+      <p>Understand any GitHub PR in seconds.<br>Get your free Groq key to start.</p>
+    </div>
+    <div class="onboard-steps">
+      <div class="onboard-step">
+        <div class="step-n">1</div>
+        <div class="step-text">
+          <strong>Get a free Groq API key</strong>
+          <span>Visit <a href="https://console.groq.com" target="_blank">console.groq.com</a> → sign up → API Keys → Create key. It's free.</span>
+        </div>
+      </div>
+      <div class="onboard-step">
+        <div class="step-n">2</div>
+        <div class="step-text">
+          <strong>Paste your key below</strong>
+          <div class="key-input-wrap">
+            <input type="password" class="key-input" id="onboardKey" placeholder="gsk_..." />
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-main" id="btnSaveKey">Get started →</button>
+    <p style="text-align:center;font-size:10px;color:var(--text3);margin-top:10px;">Stored locally. Never sent to us.</p>
+  </div>
+</div>
+
+<!-- NOT ON PR -->
+<div class="state" id="stateNotPR">
+  <div class="not-pr">
+    <div class="not-pr-icon">↗</div>
+    <h3>Open a Pull Request</h3>
+    <p>Navigate to any GitHub PR page,<br>then click the ReviewLens icon.</p>
+  </div>
+</div>
+
+<!-- READY -->
+<div class="state" id="stateReady">
+  <div class="ready-body">
+    <div class="pr-card">
+      <div class="pr-title" id="prTitle">Loading PR...</div>
+    </div>
+    <div class="mode-toggle">
+      <div class="mode-opt active" id="modeGroq">
+        <span class="mode-opt-icon">⚡</span>
+        <span class="mode-opt-name">Groq</span>
+        <span class="mode-opt-sub">Fast · Cloud</span>
+      </div>
+      <div class="mode-opt" id="modeOllama">
+        <span class="mode-opt-icon">🔒</span>
+        <span class="mode-opt-name">Ollama</span>
+        <span class="mode-opt-sub">Private · Local</span>
+      </div>
+    </div>
+    <div class="ollama-notice" id="ollamaNotice">
+      Requires Ollama running locally.<br>
+      <code>ollama pull qwen2.5-coder:1.5b</code>
+    </div>
+    <button class="btn-main" id="btnSummarize">⚡ Summarize PR</button>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="state" id="stateLoading">
+  <div class="loading-body">
+    <div class="loader">
+      <div class="loader-bar"></div>
+      <div class="loader-bar"></div>
+      <div class="loader-bar"></div>
+      <div class="loader-bar"></div>
+      <div class="loader-bar"></div>
+    </div>
+    <div class="loading-title">Analyzing PR</div>
+    <div class="loading-step" id="loadingStep">Extracting diff...</div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div class="state" id="stateResults">
+  <div class="results-body">
+    <div id="resultsContent"></div>
+    <div class="result-actions">
+      <button class="btn-secondary" id="btnCopy">📋 Copy</button>
+      <button class="btn-secondary" id="btnResummarize">↺ Re-summarize</button>
+    </div>
+  </div>
+</div>
+
+<!-- ERROR -->
+<div class="state" id="stateError">
+  <div class="error-body">
+    <div class="error-card">
+      <h3>⚠ Something went wrong</h3>
+      <p id="errorMessage">Unknown error.</p>
+    </div>
+    <button class="btn-main" id="btnTryAgain">↺ Try again</button>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="state" id="stateSettings">
+  <div class="settings-body">
+    <div class="settings-title">Settings</div>
+    <div class="field">
+      <div class="field-label">Groq API Key</div>
+      <input type="password" class="field-input" id="settingsKey" placeholder="gsk_..." />
+      <div class="field-hint">Get a free key at <a href="https://console.groq.com" target="_blank">console.groq.com</a></div>
+    </div>
+    <div class="field">
+      <div class="field-label">Model</div>
+      <select class="field-input" id="settingsModel">
+        <option value="llama-3.1-8b-instant">llama-3.1-8b-instant — fastest</option>
+        <option value="llama-3.3-70b-versatile">llama-3.3-70b-versatile — most accurate</option>
+        <option value="mixtral-8x7b-32768">mixtral-8x7b — balanced</option>
+      </select>
+    </div>
+    <div class="settings-actions">
+      <button class="btn-ghost" id="btnCancelSettings">Cancel</button>
+      <button class="btn-main" id="btnSaveSettings" style="flex:1;">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-left">
+    <span class="footer-lock">🔒</span>
+    <span id="footerText">Groq · Fast inference</span>
+  </div>
+  <a href="https://reviewlens-landing.vercel.app" target="_blank">reviewlens.dev</a>
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>
