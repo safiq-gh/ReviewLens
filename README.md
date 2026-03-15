@@ -4,7 +4,7 @@
 
 ReviewLens is a Chrome extension that adds an AI-powered summary panel to every GitHub PR page — what changed, risk areas, and smart review questions. Powered by Groq (fast, free) or Ollama (local, private).
 
-![ReviewLens Demo]((assets/demo.gif))
+![ReviewLens Demo](assets/demo.gif)
 
 ---
 
